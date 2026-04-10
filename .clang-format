@@ -1,0 +1,23 @@
+BasedOnStyle: LLVM
+Language: Cpp
+
+IndentWidth: 2
+ContinuationIndentWidth: 2
+TabWidth: 2
+UseTab: Never
+
+ColumnLimit: 80
+IndentPPDirectives: None
+AlignEscapedNewlines: Left
+AlignConsecutiveMacros: None
+
+BinPackArguments: false
+BinPackParameters: false
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+
+BreakBeforeBraces: Attach
+PointerAlignment: Right
+SortIncludes: Never
+ReflowComments: false
