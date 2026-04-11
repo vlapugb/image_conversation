@@ -16,25 +16,29 @@ typedef enum filter_size {
 } filter_size_t;
 
 typedef struct filter {
-  const double *data;
+  const double *kernel;
   double factor;
   double bias;
-  filter_size_t size;
+  size_t width;
+  size_t height;
 } filter_t;
 
-static inline filter_t make_filter(const double *data,
+static inline filter_t make_filter(const double *kernel,
                                    double factor,
                                    double bias,
-                                   filter_size_t size) {
+                                   size_t width,
+                                   size_t height) {
   return (filter_t){
-    .data = data,
+    .kernel = kernel,
     .factor = factor,
     .bias = bias,
-    .size = size,
+    .width = width,
+    .height = height,
   };
 }
 
 // Может не понадобится
-// static inline double filter_at(const filter_t *filter, size_t row, size_t col) {
-//   return filter->data[row * filter->size + col];
+// static inline double filter_at(const filter_t *filter, size_t row,
+//                                size_t col) {
+//   return filter->kernel[row * filter->width + col];
 // }

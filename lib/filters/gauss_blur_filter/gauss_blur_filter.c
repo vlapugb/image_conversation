@@ -1,23 +1,23 @@
-#include "blur_filter.h"
+#include "gauss_blur_filter.h"
 
 // clang-format off
-static const double blur_kernel_3x3[] = {
-  0.0, 0.2, 0.0,       
-  0.2, 0.2, 0.2,       
-  0.0, 0.2, 0.0 
+static const double gauss_blur_kernel_3x3[] = {
+  1, 2, 1,
+  2, 4, 2,
+  1, 2, 1, 
 };
 
-static const double blur_kernel_5x5[] = {
-  0.0, 0.0, 1.0, 0.0, 0.0,
-  0.0, 1.0, 1.0, 1.0, 0.0,
-  1.0, 1.0, 1.0, 1.0, 1.0,
-  0.0, 1.0, 1.0, 1.0, 0.0,
-  0.0, 0.0, 1.0, 0.0, 0.0,
+static const double gauss_blur_kernel_5x5[] = {
+  1,  4,  6,  4,  1,
+  4, 16, 24, 16,  4,
+  6, 24, 36, 24,  6,
+  4, 16, 24, 16,  4,
+  1,  4,  6,  4,  1,
 };
 // clang-format on
 
-static const double blur_factor_3x3 = 1.0;
-static const double blur_factor_5x5 = 1.0 / 13.0;
+static const double blur_factor_3x3 = 1.0 / 16.0;
+static const double blur_factor_5x5 = 1.0 / 256.0;
 static const double blur_bias = 0.0;
 
 filter_status_t init_motion_blur_filter(filter_t *filter,
@@ -32,11 +32,13 @@ filter_status_t init_motion_blur_filter(filter_t *filter,
   switch (width) {
   case 3:
     *filter =
-      make_filter(blur_kernel_3x3, blur_factor_3x3, blur_bias, width, height);
+      make_filter(gauss_blur_kernel_3x3, blur_factor_3x3, blur_bias, width,
+                  height);
     return FILTER_STATUS_OK;
   case 5:
     *filter =
-      make_filter(blur_kernel_5x5, blur_factor_5x5, blur_bias, width, height);
+      make_filter(gauss_blur_kernel_5x5, blur_factor_5x5, blur_bias, width,
+                  height);
     return FILTER_STATUS_OK;
   case 7:
   case 9:
