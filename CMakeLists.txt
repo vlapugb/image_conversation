@@ -118,6 +118,7 @@ target_link_libraries(convolution_runtime
 
 add_executable(app
     src/app.c
+    src/cli_args.c
 )
 target_link_libraries(app
     PRIVATE
