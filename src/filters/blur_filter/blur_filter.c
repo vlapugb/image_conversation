@@ -24,6 +24,7 @@ static const double blur_bias_5x5 = 0.0;
 
 filter_status_t
 init_blur_filter(filter_t *filter, size_t width, size_t height) {
+
   if (!filter) {
     return FILTER_STATUS_NULL_POINTER;
   }
