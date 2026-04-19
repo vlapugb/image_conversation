@@ -58,7 +58,7 @@ typedef struct filter_request {
 
 typedef struct filter {
   filter_category_t category;
-  filter_operator_t operator;
+  filter_operator_t filter_operator;
   filter_kind_t kind;
   filter_direction_t direction;
   filter_border_mode_t border_mode;
@@ -78,9 +78,8 @@ static inline size_t filter_median_rank(size_t width, size_t height) {
   return (width * height) / 2U;
 }
 
-static inline filter_request_t make_filter_request(filter_kind_t kind,
-                                                   size_t width,
-                                                   size_t height) {
+static inline filter_request_t
+make_filter_request(filter_kind_t kind, size_t width, size_t height) {
   return (filter_request_t){
     .kind = kind,
     .width = width,
@@ -101,7 +100,7 @@ static inline filter_t make_convolution_filter(filter_kind_t kind,
                                                size_t height) {
   return (filter_t){
     .category = category,
-    .operator = FILTER_OPERATOR_CONVOLUTION,
+    .filter_operator = FILTER_OPERATOR_CONVOLUTION,
     .kind = kind,
     .direction = direction,
     .border_mode = border_mode,
@@ -123,7 +122,7 @@ static inline filter_t make_rank_filter(filter_kind_t kind,
                                         size_t rank_index) {
   return (filter_t){
     .category = category,
-    .operator = FILTER_OPERATOR_RANK_SELECTION,
+    .filter_operator = FILTER_OPERATOR_RANK_SELECTION,
     .kind = kind,
     .direction = direction,
     .border_mode = border_mode,
@@ -137,12 +136,13 @@ static inline filter_t make_rank_filter(filter_kind_t kind,
 }
 
 static inline bool filter_is_convolution(const filter_t *filter) {
-  return filter != NULL && filter->operator == FILTER_OPERATOR_CONVOLUTION;
+  return filter != NULL &&
+         filter->filter_operator == FILTER_OPERATOR_CONVOLUTION;
 }
 
 static inline bool filter_is_rank_selection(const filter_t *filter) {
   return filter != NULL &&
-         filter->operator == FILTER_OPERATOR_RANK_SELECTION;
+         filter->filter_operator == FILTER_OPERATOR_RANK_SELECTION;
 }
 
 static inline bool filter_has_explicit_kernel(const filter_t *filter) {
