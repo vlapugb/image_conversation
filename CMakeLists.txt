@@ -10,6 +10,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(CTest)
 include(FetchContent)
 find_package(Threads REQUIRED)
+find_package(OpenMP REQUIRED)
 
 option(IMAGE_CONVERSATION_ENABLE_OPENCV
        "Fetch the legacy OpenCV C API target"
@@ -20,6 +21,9 @@ file(GLOB_RECURSE FILTER_SOURCES CONFIGURE_DEPENDS
 )
 
 file(GLOB_RECURSE CONVOLUTION_RUNTIME_SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/convolution/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/parallel_convolution/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/parallel_convolution/*.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/sequentially_convolution/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/image_helpers/*.c"
@@ -114,6 +118,8 @@ target_link_libraries(convolution_runtime
     PUBLIC
         filters_core
         opencv_legacy_c_api
+        Threads::Threads
+        OpenMP::OpenMP_C
 )
 
 add_executable(app

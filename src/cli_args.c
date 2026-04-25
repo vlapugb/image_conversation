@@ -73,14 +73,15 @@ static bool cli_parse_type(const char *text, filter_direction_t *direction) {
   return true;
 }
 
-static bool cli_parse_mode(const char *text, execution_mode_t *mode) {
+static bool cli_parse_execution_mode(const char *text, execution_mode_t *mode) {
   if (strcmp(text, "cols") == 0) {
     *mode = EXECUTION_MODE_COLS;
   } else if (strcmp(text, "rows") == 0 || strcmp(text, "raws") == 0) {
     *mode = EXECUTION_MODE_ROWS;
   } else if (strcmp(text, "pixels") == 0) {
     *mode = EXECUTION_MODE_PIXELS;
-  } else if (strcmp(text, "random") == 0) {
+  } else if (strcmp(text, "grid") == 0 || strcmp(text, "rectangle") == 0 ||
+             strcmp(text, "random") == 0) {
     *mode = EXECUTION_MODE_GRID;
   } else {
     return false;
@@ -195,7 +196,7 @@ cli_parse_status_t cli_parse_args(int argc,
   if (strcmp(argv[index], "-s") == 0 && index + 1 == argc) {
     request->mode = EXECUTION_MODE_SEQ;
   } else if (strcmp(argv[index], "-p") == 0 && index + 2 == argc &&
-             cli_parse_mode(argv[index + 1], &request->mode)) {
+             cli_parse_execution_mode(argv[index + 1], &request->mode)) {
   } else {
     return cli_invalid(error_message, error_message_size);
   }
@@ -212,11 +213,11 @@ void cli_print_help(FILE *stream, const char *program_name) {
           "[-t <type>] -s\n"
           "  %s -i <input> -o <output> -f <filter> -h <height> -w <width> "
           "[-t <type>] -p "
-          "<cols|rows|raws|pixels|random>\n"
+          "<cols|rows|raws|pixels|grid|rectangle|random>\n"
           "  %s -i <input> -o <output> -f <filter1> -h <height1> -w <width1> "
           "[-t <type1>] "
           "-f <filter2> -h <height2> -w <width2> [-t <type2>] "
-          "(-s | -p <cols|rows|raws|pixels|random>)\n",
+          "(-s | -p <cols|rows|raws|pixels|grid|rectangle|random>)\n",
           name,
           name,
           name);
