@@ -130,3 +130,7 @@ target_link_libraries(app
     PRIVATE
         convolution_runtime
 )
+
+if(BUILD_TESTING)
+    add_subdirectory(test/sequential_tests)
+endif()

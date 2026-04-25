@@ -201,8 +201,6 @@ static int test_zero_filter_makes_rgb_black_and_keeps_alpha(void) {
 static int test_shift_filter_respects_border_modes(void) {
   double shift_right[9];
 
-  // A tiny 3x2 picture. Keeping the values as a matrix makes the expected
-  // border behaviour easy to check by eye.
   // clang-format off
   const unsigned char source_values[] = {
     1U, 2U, 3U,
@@ -275,8 +273,7 @@ static int test_opposite_shifts_compose_to_identity_with_wrap(void) {
 }
 
 static int test_zero_padded_kernel_gives_same_result(void) {
-  // Same kernel written as 3x3 and as 5x5 with a zero border around it.
-  // The convolution result must not change.
+
   // clang-format off
   const double kernel_3x3[9] = {
     0.0, 1.0, 0.0,
@@ -331,8 +328,6 @@ static int test_known_wrap_mean_3x3(void) {
 
   init_image(&image, 3U, 3U, 1U, 0U);
 
-  // With wrap borders, every 3x3 neighbourhood of a 3x3 image contains all
-  // pixels exactly once. The mean of 1..9 is 5, so every output pixel is 5.
   // clang-format off
   const unsigned char values[] = {
     1U, 2U, 3U,
