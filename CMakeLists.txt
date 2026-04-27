@@ -132,5 +132,9 @@ target_link_libraries(app
 )
 
 if(BUILD_TESTING)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(CMOCKA REQUIRED IMPORTED_TARGET cmocka)
+
     add_subdirectory(test/sequential_tests)
+    add_subdirectory(test/thread_pool_tests)
 endif()

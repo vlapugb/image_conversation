@@ -29,7 +29,7 @@ void task_queue_destroy(task_queue_t *queue) {
 }
 
 bool task_queue_try_push(task_queue_t *queue, const task_t *task) {
-  if (!queue->ring_buffer || !task || !queue) {
+  if (!queue || !queue->ring_buffer || !task) {
     return false;
   }
 
@@ -43,7 +43,7 @@ bool task_queue_try_push(task_queue_t *queue, const task_t *task) {
 }
 
 bool task_queue_try_pop(task_queue_t *queue, task_t *out_task) {
-  if (!queue->ring_buffer || !out_task || !queue) {
+  if (!queue || !queue->ring_buffer || !out_task) {
     return false;
   }
   if (queue->count == 0) {

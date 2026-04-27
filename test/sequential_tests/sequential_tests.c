@@ -2,19 +2,17 @@
 #include <image_helpers/image_helpers.h>
 #include <sequentially_convolution/sequentially_convolution.h>
 
+#include <stdarg.h>
+#include <stddef.h>
+#include <setjmp.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
-#define MAX_IMAGE_BYTES 4096U
+#include <cmocka.h>
 
-#define CHECK(condition)                                              \
-  do {                                                                \
-    if (!(condition)) {                                               \
-      fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, #condition); \
-      return 0;                                                       \
-    }                                                                 \
-  } while (0)
+#define MAX_IMAGE_BYTES 4096U
+#define ARRAY_SIZE(array) (sizeof(array) / sizeof((array)[0]))
 
 typedef struct test_image {
   unsigned char data[MAX_IMAGE_BYTES];
@@ -81,14 +79,14 @@ static filter_t make_filter(const double *kernel,
                                  height);
 }
 
-static int apply_filter(test_image_t *image,
+static void apply_filter(test_image_t *image,
                         const double *kernel,
                         size_t width,
                         size_t height,
                         double factor,
                         filter_border_mode_t border_mode) {
   filter_t filter = make_filter(kernel, width, height, factor, border_mode);
-  return sequential_convolution(&filter, &image->view) == 0;
+  assert_int_equal(sequential_convolution(&filter, &image->view), 0);
 }
 
 static void make_identity_kernel(double *kernel, size_t size) {
@@ -133,7 +131,8 @@ static int one_channel_image_has_values(const test_image_t *image,
   return 1;
 }
 
-static int test_identity_filter_keeps_image(void) {
+static void identity_filter_keeps_image(void **state) {
+  (void)state;
   const size_t kernel_sizes[] = {1U, 3U, 5U, 7U};
   const filter_border_mode_t borders[] = {
     FILTER_BORDER_WRAP,
@@ -146,7 +145,7 @@ static int test_identity_filter_keeps_image(void) {
       continue;
     }
 
-    for (size_t i = 0; i < sizeof(kernel_sizes) / sizeof(kernel_sizes[0]);
+    for (size_t i = 0; i < ARRAY_SIZE(kernel_sizes);
          ++i) {
       double kernel[49];
       test_image_t original;
@@ -158,19 +157,19 @@ static int test_identity_filter_keeps_image(void) {
       fill_random(&original);
       make_identity_kernel(kernel, kernel_sizes[i]);
 
-      for (size_t b = 0; b < sizeof(borders) / sizeof(borders[0]); ++b) {
+      for (size_t b = 0; b < ARRAY_SIZE(borders); ++b) {
         copy_image(&actual, &original);
-        CHECK(apply_filter(
-          &actual, kernel, kernel_sizes[i], kernel_sizes[i], 1.0, borders[b]));
-        CHECK(same_image(&original, &actual));
+        apply_filter(
+          &actual, kernel, kernel_sizes[i], kernel_sizes[i], 1.0, borders[b]);
+        assert_true(same_image(&original, &actual));
       }
     }
   }
 
-  return 1;
 }
 
-static int test_zero_filter_makes_rgb_black_and_keeps_alpha(void) {
+static void zero_filter_makes_rgb_black_and_keeps_alpha(void **state) {
+  (void)state;
   double zero_kernel[9] = {0.0};
   test_image_t original;
   test_image_t actual;
@@ -181,24 +180,24 @@ static int test_zero_filter_makes_rgb_black_and_keeps_alpha(void) {
   fill_random(&original);
   copy_image(&actual, &original);
 
-  CHECK(apply_filter(&actual, zero_kernel, 3U, 3U, 1.0, FILTER_BORDER_REFLECT));
+  apply_filter(&actual, zero_kernel, 3U, 3U, 1.0, FILTER_BORDER_REFLECT);
 
   for (size_t y = 0; y < actual.view.height; ++y) {
     for (size_t x = 0; x < actual.view.width; ++x) {
       const unsigned char *before = const_pixel(&original, x, y);
       const unsigned char *after = const_pixel(&actual, x, y);
 
-      CHECK(after[0] == 0U);
-      CHECK(after[1] == 0U);
-      CHECK(after[2] == 0U);
-      CHECK(after[3] == before[3]);
+      assert_int_equal(after[0], 0U);
+      assert_int_equal(after[1], 0U);
+      assert_int_equal(after[2], 0U);
+      assert_int_equal(after[3], before[3]);
     }
   }
 
-  return 1;
 }
 
-static int test_shift_filter_respects_border_modes(void) {
+static void shift_filter_respects_border_modes(void **state) {
+  (void)state;
   double shift_right[9];
 
   // clang-format off
@@ -227,21 +226,21 @@ static int test_shift_filter_respects_border_modes(void) {
   make_shift_kernel(shift_right, 1, 0);
 
   set_one_channel_image(&image, source_values);
-  CHECK(apply_filter(&image, shift_right, 3U, 3U, 1.0, FILTER_BORDER_WRAP));
-  CHECK(one_channel_image_has_values(&image, wrap_expected));
+  apply_filter(&image, shift_right, 3U, 3U, 1.0, FILTER_BORDER_WRAP);
+  assert_true(one_channel_image_has_values(&image, wrap_expected));
 
   set_one_channel_image(&image, source_values);
-  CHECK(apply_filter(&image, shift_right, 3U, 3U, 1.0, FILTER_BORDER_CLAMP));
-  CHECK(one_channel_image_has_values(&image, clamp_expected));
+  apply_filter(&image, shift_right, 3U, 3U, 1.0, FILTER_BORDER_CLAMP);
+  assert_true(one_channel_image_has_values(&image, clamp_expected));
 
   set_one_channel_image(&image, source_values);
-  CHECK(apply_filter(&image, shift_right, 3U, 3U, 1.0, FILTER_BORDER_REFLECT));
-  CHECK(one_channel_image_has_values(&image, reflect_expected));
+  apply_filter(&image, shift_right, 3U, 3U, 1.0, FILTER_BORDER_REFLECT);
+  assert_true(one_channel_image_has_values(&image, reflect_expected));
 
-  return 1;
 }
 
-static int test_opposite_shifts_compose_to_identity_with_wrap(void) {
+static void opposite_shifts_compose_to_identity_with_wrap(void **state) {
+  (void)state;
   double shift_right[9];
   double shift_left[9];
   double shift_down[9];
@@ -260,19 +259,19 @@ static int test_opposite_shifts_compose_to_identity_with_wrap(void) {
   fill_random(&original);
 
   copy_image(&actual, &original);
-  CHECK(apply_filter(&actual, shift_right, 3U, 3U, 1.0, FILTER_BORDER_WRAP));
-  CHECK(apply_filter(&actual, shift_left, 3U, 3U, 1.0, FILTER_BORDER_WRAP));
-  CHECK(same_image(&original, &actual));
+  apply_filter(&actual, shift_right, 3U, 3U, 1.0, FILTER_BORDER_WRAP);
+  apply_filter(&actual, shift_left, 3U, 3U, 1.0, FILTER_BORDER_WRAP);
+  assert_true(same_image(&original, &actual));
 
   copy_image(&actual, &original);
-  CHECK(apply_filter(&actual, shift_down, 3U, 3U, 1.0, FILTER_BORDER_WRAP));
-  CHECK(apply_filter(&actual, shift_up, 3U, 3U, 1.0, FILTER_BORDER_WRAP));
-  CHECK(same_image(&original, &actual));
+  apply_filter(&actual, shift_down, 3U, 3U, 1.0, FILTER_BORDER_WRAP);
+  apply_filter(&actual, shift_up, 3U, 3U, 1.0, FILTER_BORDER_WRAP);
+  assert_true(same_image(&original, &actual));
 
-  return 1;
 }
 
-static int test_zero_padded_kernel_gives_same_result(void) {
+static void zero_padded_kernel_gives_same_result(void **state) {
+  (void)state;
 
   // clang-format off
   const double kernel_3x3[9] = {
@@ -304,25 +303,24 @@ static int test_zero_padded_kernel_gives_same_result(void) {
 
   fill_random(&source);
 
-  for (size_t i = 0; i < sizeof(borders) / sizeof(borders[0]); ++i) {
+  for (size_t i = 0; i < ARRAY_SIZE(borders); ++i) {
     copy_image(&small_kernel_result, &source);
     copy_image(&padded_kernel_result, &source);
 
-    CHECK(
-      apply_filter(&small_kernel_result, kernel_3x3, 3U, 3U, 1.0, borders[i]));
-    CHECK(apply_filter(&padded_kernel_result,
-                       same_kernel_padded_to_5x5,
-                       5U,
-                       5U,
-                       1.0,
-                       borders[i]));
-    CHECK(same_image(&small_kernel_result, &padded_kernel_result));
+    apply_filter(&small_kernel_result, kernel_3x3, 3U, 3U, 1.0, borders[i]);
+    apply_filter(&padded_kernel_result,
+                 same_kernel_padded_to_5x5,
+                 5U,
+                 5U,
+                 1.0,
+                 borders[i]);
+    assert_true(same_image(&small_kernel_result, &padded_kernel_result));
   }
 
-  return 1;
 }
 
-static int test_known_wrap_mean_3x3(void) {
+static void known_wrap_mean_3x3(void **state) {
+  (void)state;
   double mean_kernel[9];
   test_image_t image;
 
@@ -346,51 +344,20 @@ static int test_known_wrap_mean_3x3(void) {
   }
 
   set_one_channel_image(&image, values);
-  CHECK(
-    apply_filter(&image, mean_kernel, 3U, 3U, 1.0 / 9.0, FILTER_BORDER_WRAP));
-  CHECK(one_channel_image_has_values(&image, expected));
+  apply_filter(&image, mean_kernel, 3U, 3U, 1.0 / 9.0, FILTER_BORDER_WRAP);
+  assert_true(one_channel_image_has_values(&image, expected));
 
-  return 1;
-}
-
-static int run_test(const char *name, int (*test)(void)) {
-  printf("running %s\n", name);
-
-  if (!test()) {
-    fprintf(stderr, "FAILED: %s\n", name);
-    return 0;
-  }
-
-  printf("PASSED: %s\n", name);
-  return 1;
 }
 
 int main(void) {
-  int ok = 1;
+  const struct CMUnitTest tests[] = {
+    cmocka_unit_test(identity_filter_keeps_image),
+    cmocka_unit_test(zero_filter_makes_rgb_black_and_keeps_alpha),
+    cmocka_unit_test(shift_filter_respects_border_modes),
+    cmocka_unit_test(opposite_shifts_compose_to_identity_with_wrap),
+    cmocka_unit_test(zero_padded_kernel_gives_same_result),
+    cmocka_unit_test(known_wrap_mean_3x3),
+  };
 
-  if (!run_test("identity filter keeps image",
-                test_identity_filter_keeps_image)) {
-    ok = 0;
-  }
-  if (!run_test("zero filter",
-                test_zero_filter_makes_rgb_black_and_keeps_alpha)) {
-    ok = 0;
-  }
-  if (!run_test("shift border modes",
-                test_shift_filter_respects_border_modes)) {
-    ok = 0;
-  }
-  if (!run_test("opposite shifts",
-                test_opposite_shifts_compose_to_identity_with_wrap)) {
-    ok = 0;
-  }
-  if (!run_test("zero padded kernel",
-                test_zero_padded_kernel_gives_same_result)) {
-    ok = 0;
-  }
-  if (!run_test("known wrap mean", test_known_wrap_mean_3x3)) {
-    ok = 0;
-  }
-
-  return ok ? 0 : 1;
+  return cmocka_run_group_tests(tests, NULL, NULL);
 }

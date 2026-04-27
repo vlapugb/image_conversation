@@ -3,7 +3,11 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-typedef enum task_type { READER_TASK = 1, WRITER_TASK } task_type_t;
+typedef enum task_type {
+  READER_TASK = 1,
+  COMPUTE_TASK,
+  WRITER_TASK,
+} task_type_t;
 
 typedef void (*task_fn_t)(void *args);
 
