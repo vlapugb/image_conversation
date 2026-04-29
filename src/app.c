@@ -2,13 +2,12 @@
 
 #include <filters/filter.h>
 #include <parallel_convolution/parallel_convolution.h>
+#include <pipeline/image_pipeline_runner.h>
 #include <sequentially_convolution/sequentially_convolution.h>
 
 #include <time.h>
 #include <stdio.h>
-
-#include <opencv2/highgui/highgui_c.h>
-#include <opencv2/core/core_c.h>
+#include <stdlib.h>
 
 #define MAX_ERROR_MESSAGE_LENGTH 32
 
@@ -21,10 +20,8 @@ static double elapsed_ms(const struct timespec *start,
   return seconds + nanoseconds;
 }
 
-typedef int (*convolution_runner_t)(const filter_t *filter,
-                                    image_view_t *image_view);
-
-static convolution_runner_t select_convolution_runner(execution_mode_t mode) {
+static image_convolution_runner_t
+select_convolution_runner(execution_mode_t mode) {
   switch (mode) {
   case EXECUTION_MODE_SEQ:
     return sequential_convolution;
@@ -41,35 +38,24 @@ static convolution_runner_t select_convolution_runner(execution_mode_t mode) {
   }
 }
 
-static int apply_filters(const cli_request_t *request,
-                         image_view_t *image_view) {
-  convolution_runner_t run_convolution =
-    select_convolution_runner(request->mode);
-  if (run_convolution == NULL) {
-    return -1;
-  }
+static void fill_pipeline_request(image_pipeline_request_t *pipeline_request,
+                                  const cli_request_t *cli_request,
+                                  size_t image_index,
+                                  image_convolution_runner_t runner) {
+  pipeline_request->input_path = cli_request->images[image_index].input_path;
+  pipeline_request->output_path = cli_request->images[image_index].output_path;
+  pipeline_request->filter_count = cli_request->filter_count;
+  pipeline_request->run_convolution = runner;
 
-  for (size_t i = 0; i < request->filter_count; ++i) {
-    filter_t filter;
-    filter_request_t filter_request = {
-      .kind = request->filters[i].kind,
-      .width = request->filters[i].width,
-      .height = request->filters[i].height,
-      .direction = request->filters[i].direction,
-      .border_mode = request->filters[i].border_mode,
+  for (size_t i = 0; i < cli_request->filter_count; ++i) {
+    pipeline_request->filters[i] = (filter_request_t){
+      .kind = cli_request->filters[i].kind,
+      .width = cli_request->filters[i].width,
+      .height = cli_request->filters[i].height,
+      .direction = cli_request->filters[i].direction,
+      .border_mode = cli_request->filters[i].border_mode,
     };
-
-    if (filter_init_builtin(&filter, &filter_request) != FILTER_STATUS_OK) {
-      return -1;
-    }
-
-    if (!filter_is_convolution(&filter) ||
-        run_convolution(&filter, image_view) != 0) {
-      return -1;
-    }
   }
-
-  return 0;
 }
 
 int main(int argc, char **argv) {
@@ -87,39 +73,38 @@ int main(int argc, char **argv) {
     return -1;
   }
 
-  IplImage *image = cvLoadImage(request.input_path, CV_LOAD_IMAGE_UNCHANGED);
-  if (image == NULL) {
-    fprintf(stderr, "failed to load image: %s\n", request.input_path);
+  image_convolution_runner_t runner = select_convolution_runner(request.mode);
+  if (runner == NULL) {
+    cli_request_destroy(&request);
+    fputs("invalid execution mode\n", stderr);
     return -1;
   }
 
-  image_view_t image_view = {
-    .data = (unsigned char *)image->imageData,
-    .height = (size_t)image->height,
-    .width = (size_t)image->width,
-    .stride = (size_t)image->widthStep,
-    .channels = (size_t)image->nChannels,
-  };
+  image_pipeline_request_t *pipeline_requests =
+    (image_pipeline_request_t *)malloc(sizeof(*pipeline_requests) *
+                                       request.image_count);
+  if (pipeline_requests == NULL) {
+    cli_request_destroy(&request);
+    fputs("failed to allocate pipeline requests\n", stderr);
+    return -1;
+  }
+
+  for (size_t i = 0; i < request.image_count; ++i) {
+    fill_pipeline_request(&pipeline_requests[i], &request, i, runner);
+  }
+
   struct timespec start_time;
   struct timespec end_time;
 
   timespec_get(&start_time, TIME_UTC);
 
-  if (apply_filters(&request, &image_view) != 0) {
-    cvReleaseImage(&image);
-    fputs("failed to apply filters\n", stderr);
-    return -1;
-  }
+  const int pipeline_result =
+    image_pipeline_run(pipeline_requests, request.image_count);
 
   timespec_get(&end_time, TIME_UTC);
   printf("processing time: %.3f ms\n", elapsed_ms(&start_time, &end_time));
 
-  if (!cvSaveImage(request.output_path, image, NULL)) {
-    cvReleaseImage(&image);
-    fprintf(stderr, "failed to save image: %s\n", request.output_path);
-    return -1;
-  }
-
-  cvReleaseImage(&image);
-  return 0;
+  free(pipeline_requests);
+  cli_request_destroy(&request);
+  return pipeline_result == 0 ? 0 : -1;
 }

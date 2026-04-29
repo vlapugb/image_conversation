@@ -1,8 +1,13 @@
 #include "cli_args.h"
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#define INITIAL_IMAGE_CAPACITY 4U
+#define MIN_ARG_COUNT 12
 
 static void cli_set_invalid(char *error_message, size_t error_message_size) {
   if (error_message != NULL && error_message_size != 0U) {
@@ -90,29 +95,82 @@ static bool cli_parse_execution_mode(const char *text, execution_mode_t *mode) {
   return true;
 }
 
-static bool
-cli_parse_io_paths(int argc, char **argv, int *index, cli_request_t *request) {
-  if (*index + 3 >= argc) {
-    return false;
-  }
-
-  if (strcmp(argv[*index], "-i") != 0 || strcmp(argv[*index + 2], "-o") != 0) {
-    return false;
-  }
-
-  request->input_path = argv[*index + 1];
-  request->output_path = argv[*index + 3];
-  *index += 4;
-  return true;
-}
-
 static void cli_init_request(cli_request_t *request) {
   memset(request, 0, sizeof(*request));
   request->mode = EXECUTION_MODE_SEQ;
-  for (size_t i = 0; i < 2U; ++i) {
+  for (size_t i = 0; i < CLI_MAX_FILTERS; ++i) {
     request->filters[i].direction = FILTER_DIRECTION_NONE;
     request->filters[i].border_mode = FILTER_BORDER_WRAP;
   }
+}
+
+void cli_request_destroy(cli_request_t *request) {
+  if (request == NULL) {
+    return;
+  }
+
+  free(request->images);
+  request->images = NULL;
+  request->image_count = 0U;
+  request->image_capacity = 0U;
+}
+
+static bool cli_request_add_image(cli_request_t *request,
+                                  const char *input_path,
+                                  const char *output_path) {
+  if (request == NULL || input_path == NULL || output_path == NULL) {
+    return false;
+  }
+
+  if (request->image_count == request->image_capacity) {
+    const size_t max_capacity = SIZE_MAX / sizeof(*request->images);
+    size_t new_capacity = request->image_capacity == 0U
+                            ? INITIAL_IMAGE_CAPACITY
+                            : request->image_capacity * 2U;
+
+    if (new_capacity <= request->image_capacity ||
+        new_capacity > max_capacity) {
+      return false;
+    }
+
+    cli_image_io_t *new_images = (cli_image_io_t *)realloc(
+      request->images, sizeof(*request->images) * new_capacity);
+    if (new_images == NULL) {
+      return false;
+    }
+
+    request->images = new_images;
+    request->image_capacity = new_capacity;
+  }
+
+  request->images[request->image_count] = (cli_image_io_t){
+    .input_path = input_path,
+    .output_path = output_path,
+  };
+  ++request->image_count;
+  return true;
+}
+
+static bool cli_parse_image_io_pairs(int argc,
+                                     char **argv,
+                                     int *index,
+                                     cli_request_t *request) {
+  bool parsed_any = false;
+
+  while (*index < argc && strcmp(argv[*index], "-i") == 0) {
+    if (*index + 3 >= argc || strcmp(argv[*index + 2], "-o") != 0) {
+      return false;
+    }
+
+    if (!cli_request_add_image(request, argv[*index + 1], argv[*index + 3])) {
+      return false;
+    }
+
+    *index += 4;
+    parsed_any = true;
+  }
+
+  return parsed_any;
 }
 
 static bool cli_parse_filter_spec(int argc,
@@ -168,15 +226,17 @@ cli_parse_status_t cli_parse_args(int argc,
     return CLI_PARSE_HELP;
   }
 
-  if (argc < 12) {
+  if (argc < MIN_ARG_COUNT) {
     return cli_invalid(error_message, error_message_size);
   }
 
-  if (!cli_parse_io_paths(argc, argv, &index, request)) {
+  if (!cli_parse_image_io_pairs(argc, argv, &index, request)) {
+    cli_request_destroy(request);
     return cli_invalid(error_message, error_message_size);
   }
 
   if (!cli_parse_filter_spec(argc, argv, &index, &request->filters[0])) {
+    cli_request_destroy(request);
     return cli_invalid(error_message, error_message_size);
   }
 
@@ -184,20 +244,26 @@ cli_parse_status_t cli_parse_args(int argc,
 
   if (index < argc && strcmp(argv[index], "-f") == 0) {
     if (!cli_parse_filter_spec(argc, argv, &index, &request->filters[1])) {
+      cli_request_destroy(request);
       return cli_invalid(error_message, error_message_size);
     }
-    request->filter_count = 2U;
+    request->filter_count = CLI_MAX_FILTERS;
   }
 
   if (index >= argc) {
+    cli_request_destroy(request);
     return cli_invalid(error_message, error_message_size);
   }
 
   if (strcmp(argv[index], "-s") == 0 && index + 1 == argc) {
     request->mode = EXECUTION_MODE_SEQ;
-  } else if (strcmp(argv[index], "-p") == 0 && index + 2 == argc &&
-             cli_parse_execution_mode(argv[index + 1], &request->mode)) {
+  } else if (strcmp(argv[index], "-p") == 0 && index + 2 == argc) {
+    if (!cli_parse_execution_mode(argv[index + 1], &request->mode)) {
+      cli_request_destroy(request);
+      return cli_invalid(error_message, error_message_size);
+    }
   } else {
+    cli_request_destroy(request);
     return cli_invalid(error_message, error_message_size);
   }
 
@@ -207,18 +273,19 @@ cli_parse_status_t cli_parse_args(int argc,
 void cli_print_help(FILE *stream, const char *program_name) {
   const char *name = program_name != NULL ? program_name : "main";
 
-  fprintf(stream,
-          "Usage:\n"
-          "  %s -i <input> -o <output> -f <filter> -h <height> -w <width> "
-          "[-t <type>] -s\n"
-          "  %s -i <input> -o <output> -f <filter> -h <height> -w <width> "
-          "[-t <type>] -p "
-          "<cols|rows|raws|pixels|grid|rectangle|random>\n"
-          "  %s -i <input> -o <output> -f <filter1> -h <height1> -w <width1> "
-          "[-t <type1>] "
-          "-f <filter2> -h <height2> -w <width2> [-t <type2>] "
-          "(-s | -p <cols|rows|raws|pixels|grid|rectangle|random>)\n",
-          name,
-          name,
-          name);
+  fprintf(
+    stream,
+    "Usage:\n"
+    "  %s (-i <input> -o <output>)+ -f <filter> -h <height> -w <width> "
+    "[-t <type>] -s\n"
+    "  %s (-i <input> -o <output>)+ -f <filter> -h <height> -w <width> "
+    "[-t <type>] -p "
+    "<cols|rows|raws|pixels|grid|rectangle|random>\n"
+    "  %s (-i <input> -o <output>)+ -f <filter1> -h <height1> -w <width1> "
+    "[-t <type1>] "
+    "-f <filter2> -h <height2> -w <width2> [-t <type2>] "
+    "(-s | -p <cols|rows|raws|pixels|grid|rectangle|random>)\n",
+    name,
+    name,
+    name);
 }

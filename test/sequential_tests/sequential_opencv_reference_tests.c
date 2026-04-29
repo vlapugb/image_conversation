@@ -306,11 +306,8 @@ static void check_case(size_t width,
   opencv_result = run_opencv_filter(&source, kernel, border);
   assert_non_null(opencv_result);
 
-  assert_true(compare_with_opencv(&source,
-                                  &actual,
-                                  kernel,
-                                  opencv_result,
-                                  test_name));
+  assert_true(
+    compare_with_opencv(&source, &actual, kernel, opencv_result, test_name));
   cvReleaseMat(&opencv_result);
 }
 
@@ -319,26 +316,60 @@ static void sequential_convolution_matches_opencv(void **state) {
 
   static const double identity[] = {1.0};
   static const double gaussian_3x3[] = {
-    1.0, 2.0, 1.0,
-    2.0, 4.0, 2.0,
-    1.0, 2.0, 1.0,
+    1.0,
+    2.0,
+    1.0,
+    2.0,
+    4.0,
+    2.0,
+    1.0,
+    2.0,
+    1.0,
   };
   static const double sharpen_3x3[] = {
-     0.0, -1.0,  0.0,
-    -1.0,  5.0, -1.0,
-     0.0, -1.0,  0.0,
+    0.0,
+    -1.0,
+    0.0,
+    -1.0,
+    5.0,
+    -1.0,
+    0.0,
+    -1.0,
+    0.0,
   };
   static const double tall_3x5[] = {
-     0.0, 1.0,  0.0,
-    -1.0, 2.0, -1.0,
-     0.0, 3.0,  0.0,
-    -1.0, 2.0, -1.0,
-     0.0, 1.0,  0.0,
+    0.0,
+    1.0,
+    0.0,
+    -1.0,
+    2.0,
+    -1.0,
+    0.0,
+    3.0,
+    0.0,
+    -1.0,
+    2.0,
+    -1.0,
+    0.0,
+    1.0,
+    0.0,
   };
   static const double wide_5x3[] = {
-     0.0, -1.0, 0.0,  1.0, 0.0,
-     1.0,  2.0, 3.0,  2.0, 1.0,
-     0.0,  1.0, 0.0, -1.0, 0.0,
+    0.0,
+    -1.0,
+    0.0,
+    1.0,
+    0.0,
+    1.0,
+    2.0,
+    3.0,
+    2.0,
+    1.0,
+    0.0,
+    1.0,
+    0.0,
+    -1.0,
+    0.0,
   };
 
   const size_t widths[] = {1U, 2U, 3U, 5U, 8U, 13U};
@@ -357,7 +388,8 @@ static void sequential_convolution_matches_opencv(void **state) {
     {"5x3", wide_5x3, 5U, 3U, 1.0, 7.0},
   };
 
-  for (size_t width_index = 0; width_index < ARRAY_SIZE(widths); ++width_index) {
+  for (size_t width_index = 0; width_index < ARRAY_SIZE(widths);
+       ++width_index) {
     for (size_t height_index = 0; height_index < ARRAY_SIZE(heights);
          ++height_index) {
       for (size_t channel_index = 0; channel_index < ARRAY_SIZE(channels);

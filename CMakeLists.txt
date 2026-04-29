@@ -24,6 +24,7 @@ file(GLOB_RECURSE CONVOLUTION_RUNTIME_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/convolution/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/parallel_convolution/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/parallel_convolution/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/pipeline/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/sequentially_convolution/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/image_helpers/*.c"
