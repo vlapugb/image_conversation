@@ -5,10 +5,6 @@
 #include <filters/filter.h>
 #include <image_helpers/image_helpers.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 typedef struct convolution_context {
   const filter_t *filter;
   const unsigned char *source;
@@ -42,7 +38,3 @@ int convolution_apply_rows(const convolution_context_t *context,
 int convolution_apply_cols(const convolution_context_t *context,
                            size_t x_begin,
                            size_t x_end);
-
-#ifdef __cplusplus
-}
-#endif
