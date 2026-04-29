@@ -1,0 +1,717 @@
+{
+  "case": "gauss 5x5 -> sharpen 3x3",
+  "runs": 10,
+  "modes": [
+    "seq",
+    "rows",
+    "cols",
+    "pixels",
+    "grid"
+  ],
+  "mode_names": {
+    "seq": "Sequential",
+    "rows": "Parallel rows",
+    "cols": "Parallel cols",
+    "pixels": "Parallel pixels",
+    "grid": "Parallel grid"
+  },
+  "environment": {
+    "system": "Linux-6.19.11-200.fc43.x86_64-x86_64-with-glibc2.42",
+    "machine": "x86_64",
+    "omp_num_threads": "18"
+  },
+  "single_images": [
+    {
+      "image": {
+        "name": "satoru.jpg",
+        "path": "input/satoru.jpg",
+        "stem": "satoru",
+        "width": 225,
+        "height": 225,
+        "megapixels": 0.050625
+      },
+      "results": {
+        "seq": {
+          "runs_ms": [
+            53.494,
+            56.026,
+            53.086,
+            56.063,
+            52.795,
+            51.095,
+            51.27,
+            49.007,
+            59.004,
+            49.123
+          ],
+          "mean_ms": 53.0963,
+          "min_ms": 49.007,
+          "max_ms": 59.004,
+          "speedup_vs_seq": 1.0
+        },
+        "rows": {
+          "runs_ms": [
+            13.301,
+            13.241,
+            13.845,
+            12.214,
+            15.727,
+            11.697,
+            13.063,
+            14.717,
+            14.826,
+            14.308
+          ],
+          "mean_ms": 13.6939,
+          "min_ms": 11.697,
+          "max_ms": 15.727,
+          "speedup_vs_seq": 3.8773687554312506
+        },
+        "cols": {
+          "runs_ms": [
+            12.084,
+            15.268,
+            21.292,
+            15.862,
+            12.174,
+            16.4,
+            13.186,
+            14.445,
+            12.828,
+            11.616
+          ],
+          "mean_ms": 14.5155,
+          "min_ms": 11.616,
+          "max_ms": 21.292,
+          "speedup_vs_seq": 3.6579036202679895
+        },
+        "pixels": {
+          "runs_ms": [
+            14.762,
+            14.658,
+            17.256,
+            15.315,
+            13.116,
+            13.989,
+            14.374,
+            18.826,
+            13.694,
+            13.025
+          ],
+          "mean_ms": 14.901500000000002,
+          "min_ms": 13.025,
+          "max_ms": 18.826,
+          "speedup_vs_seq": 3.5631513606012812
+        },
+        "grid": {
+          "runs_ms": [
+            14.786,
+            14.512,
+            12.217,
+            12.274,
+            12.749,
+            13.045,
+            15.314,
+            12.628,
+            11.816,
+            13.897
+          ],
+          "mean_ms": 13.3238,
+          "min_ms": 11.816,
+          "max_ms": 15.314,
+          "speedup_vs_seq": 3.9850718263558442
+        }
+      },
+      "plot_path": "benchmarks/readme_single_satoru_gauss_5x5_then_sharpen_3x3_benchmark.png"
+    },
+    {
+      "image": {
+        "name": "sunshine.jpg",
+        "path": "input/sunshine.jpg",
+        "stem": "sunshine",
+        "width": 300,
+        "height": 168,
+        "megapixels": 0.0504
+      },
+      "results": {
+        "seq": {
+          "runs_ms": [
+            52.498,
+            54.851,
+            57.882,
+            52.58,
+            52.751,
+            51.41,
+            51.077,
+            53.54,
+            59.262,
+            53.238
+          ],
+          "mean_ms": 53.908899999999996,
+          "min_ms": 51.077,
+          "max_ms": 59.262,
+          "speedup_vs_seq": 1.0
+        },
+        "rows": {
+          "runs_ms": [
+            13.361,
+            12.363,
+            13.603,
+            12.598,
+            14.052,
+            9.21,
+            11.388,
+            13.358,
+            14.956,
+            12.247
+          ],
+          "mean_ms": 12.7136,
+          "min_ms": 9.21,
+          "max_ms": 14.956,
+          "speedup_vs_seq": 4.240254530581424
+        },
+        "cols": {
+          "runs_ms": [
+            11.466,
+            12.114,
+            15.746,
+            12.635,
+            12.962,
+            11.671,
+            11.135,
+            13.077,
+            14.849,
+            13.798
+          ],
+          "mean_ms": 12.9453,
+          "min_ms": 11.135,
+          "max_ms": 15.746,
+          "speedup_vs_seq": 4.164360810487204
+        },
+        "pixels": {
+          "runs_ms": [
+            11.843,
+            10.997,
+            12.572,
+            12.514,
+            12.513,
+            13.202,
+            16.401,
+            10.274,
+            12.819,
+            14.88
+          ],
+          "mean_ms": 12.801499999999999,
+          "min_ms": 10.274,
+          "max_ms": 16.401,
+          "speedup_vs_seq": 4.211139319610983
+        },
+        "grid": {
+          "runs_ms": [
+            12.085,
+            13.066,
+            13.667,
+            13.609,
+            12.333,
+            12.779,
+            15.298,
+            13.366,
+            12.429,
+            13.057
+          ],
+          "mean_ms": 13.168899999999999,
+          "min_ms": 12.085,
+          "max_ms": 15.298,
+          "speedup_vs_seq": 4.093652469074866
+        }
+      },
+      "plot_path": "benchmarks/readme_single_sunshine_gauss_5x5_then_sharpen_3x3_benchmark.png"
+    },
+    {
+      "image": {
+        "name": "stariy_bog.png",
+        "path": "input/stariy_bog.png",
+        "stem": "stariy_bog",
+        "width": 914,
+        "height": 480,
+        "megapixels": 0.43872
+      },
+      "results": {
+        "seq": {
+          "runs_ms": [
+            423.134,
+            429.504,
+            426.467,
+            424.95,
+            427.752,
+            426.517,
+            426.348,
+            415.503,
+            426.465,
+            422.58
+          ],
+          "mean_ms": 424.922,
+          "min_ms": 415.503,
+          "max_ms": 429.504,
+          "speedup_vs_seq": 1.0
+        },
+        "rows": {
+          "runs_ms": [
+            90.699,
+            85.48,
+            85.476,
+            79.269,
+            89.927,
+            79.503,
+            70.147,
+            76.694,
+            73.041,
+            81.829
+          ],
+          "mean_ms": 81.2065,
+          "min_ms": 70.147,
+          "max_ms": 90.699,
+          "speedup_vs_seq": 5.23261069003097
+        },
+        "cols": {
+          "runs_ms": [
+            78.115,
+            74.922,
+            77.895,
+            86.249,
+            88.252,
+            83.19,
+            77.633,
+            79.686,
+            81.383,
+            82.238
+          ],
+          "mean_ms": 80.9563,
+          "min_ms": 74.922,
+          "max_ms": 88.252,
+          "speedup_vs_seq": 5.248782367771255
+        },
+        "pixels": {
+          "runs_ms": [
+            80.158,
+            81.155,
+            81.023,
+            86.42,
+            84.822,
+            80.439,
+            78.818,
+            79.114,
+            81.899,
+            84.891
+          ],
+          "mean_ms": 81.8739,
+          "min_ms": 78.818,
+          "max_ms": 86.42,
+          "speedup_vs_seq": 5.189956750563977
+        },
+        "grid": {
+          "runs_ms": [
+            81.31,
+            84.215,
+            78.824,
+            91.435,
+            86.681,
+            84.44,
+            77.435,
+            77.367,
+            84.255,
+            82.487
+          ],
+          "mean_ms": 82.8449,
+          "min_ms": 77.367,
+          "max_ms": 91.435,
+          "speedup_vs_seq": 5.129126838224201
+        }
+      },
+      "plot_path": "benchmarks/readme_single_stariy_bog_gauss_5x5_then_sharpen_3x3_benchmark.png"
+    },
+    {
+      "image": {
+        "name": "musashi.jpg",
+        "path": "input/musashi.jpg",
+        "stem": "musashi",
+        "width": 2560,
+        "height": 1440,
+        "megapixels": 3.6864
+      },
+      "results": {
+        "seq": {
+          "runs_ms": [
+            3457.528,
+            3509.222,
+            3577.35,
+            3730.441,
+            3500.298,
+            3460.325,
+            3494.552,
+            3507.954,
+            3472.569,
+            3476.985
+          ],
+          "mean_ms": 3518.7224,
+          "min_ms": 3457.528,
+          "max_ms": 3730.441,
+          "speedup_vs_seq": 1.0
+        },
+        "rows": {
+          "runs_ms": [
+            536.035,
+            538.815,
+            524.211,
+            542.876,
+            530.67,
+            533.624,
+            526.071,
+            524.739,
+            519.628,
+            526.067
+          ],
+          "mean_ms": 530.2736,
+          "min_ms": 519.628,
+          "max_ms": 542.876,
+          "speedup_vs_seq": 6.635673358055163
+        },
+        "cols": {
+          "runs_ms": [
+            531.596,
+            536.122,
+            567.256,
+            540.531,
+            540.955,
+            530.709,
+            522.726,
+            537.351,
+            539.126,
+            553.217
+          ],
+          "mean_ms": 539.9589,
+          "min_ms": 522.726,
+          "max_ms": 567.256,
+          "speedup_vs_seq": 6.516648581956886
+        },
+        "pixels": {
+          "runs_ms": [
+            544.502,
+            619.942,
+            544.571,
+            549.406,
+            521.035,
+            544.283,
+            561.798,
+            538.685,
+            595.659,
+            539.67
+          ],
+          "mean_ms": 555.9550999999999,
+          "min_ms": 521.035,
+          "max_ms": 619.942,
+          "speedup_vs_seq": 6.329148522965255
+        },
+        "grid": {
+          "runs_ms": [
+            517.879,
+            524.715,
+            532.66,
+            548.243,
+            518.055,
+            535.716,
+            525.715,
+            541.359,
+            518.698,
+            603.127
+          ],
+          "mean_ms": 536.6167,
+          "min_ms": 517.879,
+          "max_ms": 603.127,
+          "speedup_vs_seq": 6.557236105398881
+        }
+      },
+      "plot_path": "benchmarks/readme_single_musashi_gauss_5x5_then_sharpen_3x3_benchmark.png"
+    },
+    {
+      "image": {
+        "name": "sea.png",
+        "path": "input/sea.png",
+        "stem": "sea",
+        "width": 3840,
+        "height": 2160,
+        "megapixels": 8.2944
+      },
+      "results": {
+        "seq": {
+          "runs_ms": [
+            8061.075,
+            7979.204,
+            7913.787,
+            7878.453,
+            7901.622,
+            7906.877,
+            7921.29,
+            7856.372,
+            7923.928,
+            7948.99
+          ],
+          "mean_ms": 7929.159799999999,
+          "min_ms": 7856.372,
+          "max_ms": 8061.075,
+          "speedup_vs_seq": 1.0
+        },
+        "rows": {
+          "runs_ms": [
+            1253.196,
+            1270.061,
+            1237.329,
+            1268.953,
+            1538.333,
+            1854.657,
+            1870.137,
+            1820.993,
+            1869.106,
+            1871.25
+          ],
+          "mean_ms": 1585.4015,
+          "min_ms": 1237.329,
+          "max_ms": 1871.25,
+          "speedup_vs_seq": 5.001357574090854
+        },
+        "cols": {
+          "runs_ms": [
+            1864.972,
+            1806.161,
+            1872.894,
+            1827.989,
+            1761.864,
+            1990.614,
+            1877.94,
+            1897.573,
+            1794.089,
+            1910.373
+          ],
+          "mean_ms": 1860.4469000000001,
+          "min_ms": 1761.864,
+          "max_ms": 1990.614,
+          "speedup_vs_seq": 4.2619651224660045
+        },
+        "pixels": {
+          "runs_ms": [
+            1842.406,
+            1856.003,
+            1800.593,
+            1802.517,
+            1799.23,
+            1811.289,
+            1812.658,
+            1843.308,
+            1916.108,
+            1820.816
+          ],
+          "mean_ms": 1830.4928,
+          "min_ms": 1799.23,
+          "max_ms": 1916.108,
+          "speedup_vs_seq": 4.331707723734286
+        },
+        "grid": {
+          "runs_ms": [
+            1824.004,
+            1771.184,
+            1791.245,
+            1849.56,
+            1867.23,
+            1818.998,
+            1801.246,
+            1890.5,
+            1730.636,
+            1796.712
+          ],
+          "mean_ms": 1814.1315,
+          "min_ms": 1730.636,
+          "max_ms": 1890.5,
+          "speedup_vs_seq": 4.370774555207271
+        }
+      },
+      "plot_path": "benchmarks/readme_single_sea_gauss_5x5_then_sharpen_3x3_benchmark.png"
+    }
+  ],
+  "pipeline": {
+    "images": [
+      {
+        "name": "171406-odin_udar_chelovek_dvojnoe_proniknovenie-prefektura_sajtama-odin_udar_chelovek-anime-rukav-3840x2160.jpg",
+        "path": "input/171406-odin_udar_chelovek_dvojnoe_proniknovenie-prefektura_sajtama-odin_udar_chelovek-anime-rukav-3840x2160.jpg",
+        "stem": "171406-odin_udar_chelovek_dvojnoe_proniknovenie-prefektura_sajtama-odin_udar_chelovek-anime-rukav-3840x2160",
+        "width": 3840,
+        "height": 2160,
+        "megapixels": 8.2944
+      },
+      {
+        "name": "172836-ikona-asfalt-dorozhnoe_pokrytie-most-zdanie-3840x2160.png",
+        "path": "input/172836-ikona-asfalt-dorozhnoe_pokrytie-most-zdanie-3840x2160.png",
+        "stem": "172836-ikona-asfalt-dorozhnoe_pokrytie-most-zdanie-3840x2160",
+        "width": 3840,
+        "height": 2160,
+        "megapixels": 8.2944
+      },
+      {
+        "name": "173960-galaktika_andromedy-galaktika-mlechnyj_put-zemlya-zvezda-3840x2160.jpg",
+        "path": "input/173960-galaktika_andromedy-galaktika-mlechnyj_put-zemlya-zvezda-3840x2160.jpg",
+        "stem": "173960-galaktika_andromedy-galaktika-mlechnyj_put-zemlya-zvezda-3840x2160",
+        "width": 3840,
+        "height": 2160,
+        "megapixels": 8.2944
+      },
+      {
+        "name": "175978-yastreb-hishhnaya_ptica-sokol-nauka-biologiya-3840x2160.jpg",
+        "path": "input/175978-yastreb-hishhnaya_ptica-sokol-nauka-biologiya-3840x2160.jpg",
+        "stem": "175978-yastreb-hishhnaya_ptica-sokol-nauka-biologiya-3840x2160",
+        "width": 3840,
+        "height": 2160,
+        "megapixels": 8.2944
+      },
+      {
+        "name": "176372-oblako-gora-voda-rastenie-prirodnyj_landshaft-3840x2160.jpg",
+        "path": "input/176372-oblako-gora-voda-rastenie-prirodnyj_landshaft-3840x2160.jpg",
+        "stem": "176372-oblako-gora-voda-rastenie-prirodnyj_landshaft-3840x2160",
+        "width": 3840,
+        "height": 2160,
+        "megapixels": 8.2944
+      },
+      {
+        "name": "176515-samolet-samolety-polet-reaktivnyj_samolet-aviaciya-3840x2160.jpg",
+        "path": "input/176515-samolet-samolety-polet-reaktivnyj_samolet-aviaciya-3840x2160.jpg",
+        "stem": "176515-samolet-samolety-polet-reaktivnyj_samolet-aviaciya-3840x2160",
+        "width": 3840,
+        "height": 2160,
+        "megapixels": 8.2944
+      },
+      {
+        "name": "176585-albert_ejnshtejn_iskusstvo-art-poster-dizajn-nauka-3840x2160.jpg",
+        "path": "input/176585-albert_ejnshtejn_iskusstvo-art-poster-dizajn-nauka-3840x2160.jpg",
+        "stem": "176585-albert_ejnshtejn_iskusstvo-art-poster-dizajn-nauka-3840x2160",
+        "width": 3840,
+        "height": 2160,
+        "megapixels": 8.2944
+      },
+      {
+        "name": "179158-kon-belye-pechen-nazemnye_zhivotnye-prirodnyj_landshaft-3840x2160.jpg",
+        "path": "input/179158-kon-belye-pechen-nazemnye_zhivotnye-prirodnyj_landshaft-3840x2160.jpg",
+        "stem": "179158-kon-belye-pechen-nazemnye_zhivotnye-prirodnyj_landshaft-3840x2160",
+        "width": 3840,
+        "height": 2160,
+        "megapixels": 8.2944
+      },
+      {
+        "name": "181366-nytol_herbal_30_tabletok-nosok-bunionektomiya-dostupnyj-prigonka-3840x2160.jpg",
+        "path": "input/181366-nytol_herbal_30_tabletok-nosok-bunionektomiya-dostupnyj-prigonka-3840x2160.jpg",
+        "stem": "181366-nytol_herbal_30_tabletok-nosok-bunionektomiya-dostupnyj-prigonka-3840x2160",
+        "width": 3840,
+        "height": 2160,
+        "megapixels": 8.2944
+      },
+      {
+        "name": "img3.akspic.ru-nebo-kosmicheskoe_prostranstvo-film-gorizont-atmosfera-3840x2160.jpg",
+        "path": "input/img3.akspic.ru-nebo-kosmicheskoe_prostranstvo-film-gorizont-atmosfera-3840x2160.jpg",
+        "stem": "img3.akspic.ru-nebo-kosmicheskoe_prostranstvo-film-gorizont-atmosfera-3840x2160",
+        "width": 3840,
+        "height": 2160,
+        "megapixels": 8.2944
+      }
+    ],
+    "results": {
+      "seq": {
+        "runs_ms": [
+          76712.445,
+          77188.105,
+          77065.632,
+          77002.522,
+          76958.645,
+          76683.192,
+          77006.764,
+          76709.742,
+          77000.252,
+          76084.893
+        ],
+        "mean_ms": 76841.2192,
+        "min_ms": 76084.893,
+        "max_ms": 77188.105,
+        "speedup_vs_seq": 1.0
+      },
+      "rows": {
+        "runs_ms": [
+          10178.461,
+          10402.144,
+          10855.031,
+          11132.59,
+          14142.428,
+          15360.16,
+          15202.564,
+          15037.164,
+          15098.907,
+          14817.225
+        ],
+        "mean_ms": 13222.6674,
+        "min_ms": 10178.461,
+        "max_ms": 15360.16,
+        "speedup_vs_seq": 5.811325118863688
+      },
+      "cols": {
+        "runs_ms": [
+          14978.426,
+          14739.089,
+          14902.256,
+          14889.415,
+          14813.7,
+          14939.512,
+          14797.917,
+          15006.455,
+          14783.051,
+          14943.211
+        ],
+        "mean_ms": 14879.3032,
+        "min_ms": 14739.089,
+        "max_ms": 15006.455,
+        "speedup_vs_seq": 5.164302263831817
+      },
+      "pixels": {
+        "runs_ms": [
+          15035.262,
+          15025.911,
+          14846.209,
+          15181.949,
+          16740.949,
+          15919.612,
+          14963.689,
+          14987.698,
+          15764.893,
+          16641.573
+        ],
+        "mean_ms": 15510.7745,
+        "min_ms": 14846.209,
+        "max_ms": 16740.949,
+        "speedup_vs_seq": 4.954054305927793
+      },
+      "grid": {
+        "runs_ms": [
+          16114.425,
+          16003.337,
+          15793.969,
+          15471.865,
+          15621.606,
+          15247.745,
+          16204.288,
+          15048.509,
+          15122.201,
+          14962.529
+        ],
+        "mean_ms": 15559.0474,
+        "min_ms": 14962.529,
+        "max_ms": 16204.288,
+        "speedup_vs_seq": 4.9386840482277865
+      }
+    },
+    "plot_path": "benchmarks/readme_pipeline_gauss_5x5_then_sharpen_3x3_benchmark.png"
+  }
+}

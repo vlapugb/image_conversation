@@ -1,0 +1,61 @@
+#include "sharpen_filter.h"
+
+// clang-format off
+static const double sharpen_kernel_3x3[] = {
+  -1, -1, -1,
+  -1,  9, -1,
+  -1, -1, -1,
+};
+
+static const double sharpen_factor_3x3 = 1.0;
+static const double sharpen_bias_3x3 = 0.0;
+
+static const double sharpen_kernel_5x5[] = {
+  -1, -1, -1, -1, -1,
+  -1,  2,  2,  2, -1,
+  -1,  2,  8,  2, -1,
+  -1,  2,  2,  2, -1,
+  -1, -1, -1, -1, -1,
+};
+
+static const double sharpen_factor_5x5 = 1.0 / 8.0;
+static const double sharpen_bias_5x5 = 0.0;
+// clang-format on
+
+filter_status_t
+init_sharpen_filter(filter_t *filter, size_t width, size_t height) {
+  if (!filter) {
+    return FILTER_STATUS_NULL_POINTER;
+  }
+
+  if (width != height) {
+    return FILTER_STATUS_UNSUPPORTED_SIZE;
+  }
+
+  switch (width) {
+  case 3:
+    *filter = make_convolution_filter(FILTER_KIND_SHARPEN,
+                                      FILTER_CATEGORY_EDGE_ENHANCEMENT,
+                                      FILTER_DIRECTION_NONE,
+                                      FILTER_BORDER_WRAP,
+                                      sharpen_kernel_3x3,
+                                      sharpen_factor_3x3,
+                                      sharpen_bias_3x3,
+                                      width,
+                                      height);
+    return FILTER_STATUS_OK;
+  case 5:
+    *filter = make_convolution_filter(FILTER_KIND_SHARPEN,
+                                      FILTER_CATEGORY_EDGE_ENHANCEMENT,
+                                      FILTER_DIRECTION_NONE,
+                                      FILTER_BORDER_WRAP,
+                                      sharpen_kernel_5x5,
+                                      sharpen_factor_5x5,
+                                      sharpen_bias_5x5,
+                                      width,
+                                      height);
+    return FILTER_STATUS_OK;
+  default:
+    return FILTER_STATUS_UNSUPPORTED_SIZE;
+  }
+}
